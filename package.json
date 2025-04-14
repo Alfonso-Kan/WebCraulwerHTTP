@@ -1,0 +1,23 @@
+{
+  "name": "webcraulwerhttp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alfonso-Kan/WebCraulwerHTTP.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Alfonso-Kan/WebCraulwerHTTP/issues"
+  },
+  "homepage": "https://github.com/Alfonso-Kan/WebCraulwerHTTP#readme",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
