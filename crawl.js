@@ -2,12 +2,33 @@ const { JSDOM } = require("jsdom");
 
 const crawlingWebsite = async (baseUrl) => {
   console.log(`Crawling ${baseUrl}`);
-  const resp = await fetch(baseUrl);
+  
+  try {
+    const resp = await fetch(baseUrl);
+    if (resp.status > 399) {
+      console.log(`Error in fetch with status code: ${resp.status} on page ${baseUrl}`);
+      return;
+    }
+    //Para validar que el html que estamos obteniendo sea valido
+    const contentType = resp.headers.get("content-type");
+    /*
+    Se debe usar includes porque el content-type puede incluir informaaciòn adicional
+    como charset=utf-8, por lo que no podemos comparar directamente con 'text/html'
+    */
+    if (contentType.includes('text/html')) {
+      console.log(`non html response, content type: ${contentType} on page ${baseUrl}`);
+      return;
+    }
+
+    console.log(await resp.text());
+  } catch (error) {
+    console.log(`Error in fetch: ${error.message}, on page: ${baseUrl}`);
+  }
 
   /*
   Lo transcribimos a texto porque estamos esperando recuperar urls de HTML
+  Puede salir un pequeño warnining porque fetch solo estaba disponible en el ambiente del navegador
   */
- console.log(await resp.text());
 
 }
 
