@@ -15,7 +15,7 @@ const crawlingWebsite = async (baseUrl) => {
     Se debe usar includes porque el content-type puede incluir informaaciòn adicional
     como charset=utf-8, por lo que no podemos comparar directamente con 'text/html'
     */
-    if (contentType.includes('text/html')) {
+    if (!contentType.includes('text/html')) {
       console.log(`non html response, content type: ${contentType} on page ${baseUrl}`);
       return;
     }
