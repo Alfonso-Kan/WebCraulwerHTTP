@@ -1,14 +1,51 @@
 const { JSDOM } = require("jsdom");
 
-const crawlingWebsite = async (baseUrl) => {
-  console.log(`Crawling ${baseUrl}`);
+
+/*
+Se actualizan los parametros de la función crawlingWebsite para que pueda realizar la prueba en
+un sitio web completo y no de una sola pagina.
+baseUrl: La url base del sitio web que se va a crawl
+currentUrl: La url actual que se está procesando, se usa para evitar ciclos infinitos
+pages: Será un objeto que mantiene un rastro de todas las paginas
+*/
+const crawlingWebsite = async (baseUrl, currentUrl, pages) => {
   
+  /*
+  Así es como mantenemos un rastro de las páginas que ya hemos crawleado,
+  si los dos hostnames son diferentes, simplemente se quiere esquipear la pagina
+  */
+ const baseUrl_obj = new URL(baseUrl);
+ const currentUrl_obj = new URL(currentUrl);
+ if(baseUrl_obj.hostname !== currentUrl_obj.hostname) {
+   return pages
+  }
+  
+  /*
+  Lo siguiente es ver si hemos crawleado la pagina
+  La manera en la que podemos en la que nos cercioramos que hemos crawled esta
+  pagina es que la currentUrl esté en el objeto pages
+  El objeto de pagina es escencialmente un mapa de URLs normalizados,
+  así que no queremos duplicados a el número de vecesque hemos visto esa URL o las veces que hemos crawleado esa URL
+  */
+ const normalizedCurrentUrl = normalizeURL(currentUrl);
+ if(pages[normalizedCurrentUrl] > 0) {
+   pages[normalizedCurrentUrl]++;
+   return pages; // Si ya hemos crawleado esta URL, simplemente retornamos el objeto pages
+   //Esta es la forma en la que le podemos decir al usuario cuantas veces fue visitada una pagina.
+  }
+  
+  //Para poner la primera vez que hemos crawleado esta URL
+  pages[normalizedCurrentUrl] = 1;
+  
+  console.log(`acively crawling: ${currentUrl}`);
+
   try {
     const resp = await fetch(baseUrl);
     if (resp.status > 399) {
       console.log(`Error in fetch with status code: ${resp.status} on page ${baseUrl}`);
-      return;
+      return pages;
     }
+
     //Para validar que el html que estamos obteniendo sea valido
     const contentType = resp.headers.get("content-type");
     /*
@@ -17,13 +54,29 @@ const crawlingWebsite = async (baseUrl) => {
     */
     if (!contentType.includes('text/html')) {
       console.log(`non html response, content type: ${contentType} on page ${baseUrl}`);
-      return;
+      return pages;
     }
 
-    console.log(await resp.text());
+
+    //Almacenamos el html en una variable
+    // console.log(await resp.text());
+    const htmlBody = await resp.text();
+    //Ahora extraemos las URLs del HTML
+    const nextUrls = getURLsFromHTML(htmlBody, baseUrl);
+
+    //Aqui vamos a crawlear recursivamente esas paginas
+    for (const nextUrl of nextUrls) {
+      //Llamamos a la función crawlingWebsite recursivamente
+      //Actualizamos la variale pages con el más reciente objeto pages
+      pages = await crawlingWebsite(baseUrl, nextUrl, pages);
+    }
+
   } catch (error) {
     console.log(`Error in fetch: ${error.message}, on page: ${baseUrl}`);
   }
+
+  //Una vez que hemos crawleado cada pagina, entonces solo podemos ir al final
+  return pages;
 
   /*
   Lo transcribimos a texto porque estamos esperando recuperar urls de HTML
@@ -83,13 +136,13 @@ function getURLsFromHTML(htmlBody, baseURL) {
       }
     } else {
       //absolute URL
-      urls.push(linkElement.href);
       try {
         const urlObj = new URL(linkElement.href);
-        urlObj.push(urlObj.href);
+        urls.push(urlObj.href);
       } catch (error) {
         console.log(`Error with absolute URL: ${error.message}`);
       }
+      urls.push(linkElement.href);
     }
 }
 return urls;

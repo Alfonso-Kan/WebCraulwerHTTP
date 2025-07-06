@@ -1,7 +1,7 @@
 const { crawlingWebsite } = require("./crawl.js");
 
 //El punto central de la aplicación
-function main() {
+async function main() {
     if (process.argv.length < 3) {
         console.error("Error: No se ha proporcionado un archivo de entrada.");
         process.exit(1);
@@ -15,12 +15,16 @@ function main() {
 
     const baseUrl = process.argv[2];
 
-    for(const arg of process.argv) {
-        console.log(arg);
-    }
+    // for(const arg of process.argv) {
+    //     console.log(arg);
+    // }
 
     console.log("Iniciando el crowl de: " + baseUrl);
-    crawlingWebsite(baseUrl)
+    const pages = await crawlingWebsite(baseUrl, baseUrl, {})
+    
+    for (const page of Object.entries(pages)) {
+        console.log(page);
+    }
 }
 
 /*
