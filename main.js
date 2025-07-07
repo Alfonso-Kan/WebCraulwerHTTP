@@ -1,4 +1,5 @@
 const { crawlingWebsite } = require("./crawl.js");
+const { printReport } = require("./report.js");
 
 //El punto central de la aplicación
 async function main() {
@@ -22,9 +23,10 @@ async function main() {
     console.log("Iniciando el crowl de: " + baseUrl);
     const pages = await crawlingWebsite(baseUrl, baseUrl, {})
     
-    for (const page of Object.entries(pages)) {
-        console.log(page);
-    }
+    // for (const page of Object.entries(pages)) {
+    //     console.log(page);
+    // }
+    printReport(pages);
 }
 
 /*

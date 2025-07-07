@@ -142,7 +142,7 @@ function getURLsFromHTML(htmlBody, baseURL) {
       } catch (error) {
         console.log(`Error with absolute URL: ${error.message}`);
       }
-      urls.push(linkElement.href);
+      // urls.push(linkElement.href);
     }
 }
 return urls;

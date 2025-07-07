@@ -118,6 +118,6 @@ test('getURLsFromHTML invalid', () => {
     `
     const baseURL = 'https://blog.boot.dev'
     const actual = getURLsFromHTML(inputHTMLBody, baseURL)
-    const expected = ["https://blog.boot.dev/path/"]
+    const expected = []
     expect(actual).toEqual(expected)
 })
